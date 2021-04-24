@@ -25,31 +25,26 @@ Hopefully, you'll see something like this:
 [VaccineWatcher] info : CVS has Available Appointments in HOUSTON, TX
 ```
 
-## Prerequisites
-
-You should have chromedriver installed and in your paths, which a typical install will do.
-
-```bash
-# linux
-apt-get install chromedriver
-
-# macos - this may cause issues if your Chrome Browser =/= to your Chromedriver version.
-brew install chromedriver
-
-# windows - from the CMD
-pip install chromedriver
-```
-
 ## Installation
 
-`vaccinewatcher` is on currently only available on Github since it's not stable yet:
+**Clone Repository**
+```bash 
+$ git clone https://github.com/PDXPythonPirates/vaccinewatcher.git 
+```
 
+**Docker**\
+**What is Docker?** Docker is a platform for building, running, and shipping applications. Docker packages up an application with everything it needs and allows an app to run and function the same way on any user's local machine.
+
+**Download Docker Desktop** In order to run the Docker container, you’ll need to install Docker then run it on your local machine. There are versions available for Linux, Max, and Windows. Download the Docker desktop application: https://www.docker.com/get-started (If you’re using VScode, the docker extension can also be utilized, however, Docker Desktop will still need to run in the background on your local machine when running the program.
+
+**Build/Rebuild Image**
+```bash 
+$ docker build -t vaccinewatcher . 
+```
+
+**Run Container**
 ```bash
-# from pypi
-pip install --upgrade vaccinewatcher
-
-# from src
-pip install --upgrade git+https://github.com/trisongz/vaccinewatcher
+$ docker run -i vaccinewatcher:latest 
 ```
 
 ## Quick Start
@@ -139,8 +134,6 @@ class ZapierWebhook:
 
 # Final Notes
 
-
 ![vaccine-appt](etc/confirmation.png)
 
 If you found this library helpful, please do share it with others. This is what is within my capabilities to help provide a resource and tool to allow others to find vaccine availibility, and help bring an end to the pandemic. If you end up using some parts of this library for something bigger, let me know! I'd love to check it out.
-
