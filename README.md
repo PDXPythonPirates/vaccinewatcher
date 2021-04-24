@@ -26,6 +26,20 @@ Hopefully, you'll see something like this:
 ```
 
 ## Installation
+**Prerequisites**
+
+You should have chromedriver installed and in your paths, which a typical install will do.
+
+```bash
+# linux
+apt-get install chromedriver
+
+# macos - this may cause issues if your Chrome Browser =/= to your Chromedriver version.
+brew install chromedriver
+
+# windows - from the CMD
+pip install chromedriver
+```
 
 **Clone Repository**
 ```bash 
