@@ -40,6 +40,7 @@ brew install chromedriver
 pip install chromedriver
 ```
 
+
 ## Installation
 
 `vaccinewatcher` is on currently only available on Github since it's not stable yet:
