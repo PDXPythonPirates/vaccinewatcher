@@ -42,9 +42,12 @@ pip install chromedriver
 ```
 
 ### **Clone Repository**
-```bash 
-$ git clone https://github.com/PDXPythonPirates/vaccinewatcher.git 
-```
+
+      $ git clone https://github.com/PDXPythonPirates/vaccinewatcher.git 
+
+* Navigate to the project folder
+
+      $ cd vaccinewatcher
 
 ### **Download Docker, Build Image, Run Container**
 
@@ -53,29 +56,26 @@ $ git clone https://github.com/PDXPythonPirates/vaccinewatcher.git
 * **Create a Docker ID:** https://hub.docker.com/signup
      
 * **Login:**
-   ```bash 
-   $ docker login 
-   ```
+
+      $ docker login
 
 * **Build Docker Image:**
-   ```bash 
-   $ docker build -t vaccinewatcher . 
-   ```
+
+      $ docker build -t vaccinewatcher . 
 
 * **Run Application:**
-   ```bash
-   $ docker run -i vaccinewatcher:latest 
-   ```
+
+      $ docker run -i vaccinewatcher:latest 
 
 ### **Editing Application**
 * **Stop Running Container:** You will need the container ID to use the stop command.
-   ```
+
       # Find container ID
       $ docker ps
       
       # Stop container running
       $ docker stop <ContainerID>
-   ```
+
 * **Rebuild & Run Container:** After edits are made to the application, rebuild and run the container via the docker build and run commands.
 
 ## Quick Start
