@@ -29,7 +29,7 @@ def create_timestamp():
 
 class Browser:
     def __init__(self):
-        self.chrome_options = webdriver.ChromeOptions('/usr/bin/chromedriver')
+        self.chrome_options = webdriver.ChromeOptions()
         self.chrome_options.add_argument("--disable-gpu")
         self.chrome_options.add_argument("--disable-software-rasterizer")
         self.chrome_options.add_argument("--headless")
