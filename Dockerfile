@@ -1,12 +1,20 @@
-FROM python:3.9
+FROM selenium/standalone-chrome
 
 WORKDIR /vaccinewatcher
-COPY . . 
+
+# Install latest python version
+RUN sudo apt-get update -y && \
+    sudo apt-get upgrade -y && \
+    sudo apt-get install -y \
+    python3 \
+    python3-pip
+
+# Copy required files
+COPY vaccinewatcher . 
+COPY requirements.txt .
 
 # Install dependencies
-COPY requirements.txt .
-RUN pip3 install -r requirements.txt 
+RUN python3 -m pip install -r requirements.txt 
 
 # Run application
-CMD [ "python", "vaccinewatcher/watcher.py" ]
-
+ENTRYPOINT [ "python3", "watcher.py" ]
