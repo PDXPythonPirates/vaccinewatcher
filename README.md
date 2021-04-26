@@ -26,7 +26,7 @@ Hopefully, you'll see something like this:
 ```
 
 ## Installation
-**Prerequisites**
+### **Prerequisites**
 
 You should have chromedriver installed and in your paths, which a typical install will do.
 
@@ -41,25 +41,42 @@ brew install chromedriver
 pip install chromedriver
 ```
 
-**Clone Repository**
+### **Clone Repository**
 ```bash 
 $ git clone https://github.com/PDXPythonPirates/vaccinewatcher.git 
 ```
 
-**Docker**\
-**What is Docker?** Docker is a platform for building, running, and shipping applications. Docker packages up an application with everything it needs and allows an app to run and function the same way on any user's local machine.
+### **Download Docker, Build Image, Run Container**
 
-**Download Docker Desktop** In order to run the Docker container, you’ll need to install Docker then run it on your local machine. There are versions available for Linux, Max, and Windows. Download the Docker desktop application: https://www.docker.com/get-started (If you’re using VScode, the docker extension can also be utilized, however, Docker Desktop will still need to run in the background on your local machine when running the program.
+* **Download Docker Desktop:** https://www.docker.com/get-started. There are versions available for Linux, Max, and Windows. **What is Docker?** Docker is a platform for building, running, and shipping applications. Docker packages up an application with everything it needs and allows an app to run and function the same way on any user's local machine.
 
-**Build/Rebuild Image**
-```bash 
-$ docker build -t vaccinewatcher . 
-```
+* **Create a Docker ID:** https://hub.docker.com/signup
+     
+* **Login:**
+   ```bash 
+   $ docker login 
+   ```
 
-**Run Container**
-```bash
-$ docker run -i vaccinewatcher:latest 
-```
+* **Build Docker Image:**
+   ```bash 
+   $ docker build -t vaccinewatcher . 
+   ```
+
+* **Run Application:**
+   ```bash
+   $ docker run -i vaccinewatcher:latest 
+   ```
+
+### **Editing Application**
+* **Stop Running Container:** You will need the container ID to use the stop command.
+   ```
+      # Find container ID
+      $ docker ps
+      
+      # Stop container running
+      $ docker stop <ContainerID>
+   ```
+* **Stop Running Container:** After edits are made to the application, rebuild and run the container via the docker build and run commands.
 
 ## Quick Start
 
