@@ -76,7 +76,7 @@ $ git clone https://github.com/PDXPythonPirates/vaccinewatcher.git
       # Stop container running
       $ docker stop <ContainerID>
    ```
-* **Stop Running Container:** After edits are made to the application, rebuild and run the container via the docker build and run commands.
+* **Rebuild & Run Container:** After edits are made to the application, rebuild and run the container via the docker build and run commands.
 
 ## Quick Start
 
