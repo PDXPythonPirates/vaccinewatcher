@@ -61,11 +61,11 @@ pip install chromedriver
       
 * **Build Docker Image:** 
       
-      $ bash scripts/build.sh
+      $ ./scripts/build.sh
       
 * **Run Application/Docker Container:**
       
-      $ bash scripts/run.sh
+      $ ./scripts/run.sh
 
 ## Quick Start
 

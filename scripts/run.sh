@@ -1,2 +1,2 @@
 # Run Docker container
-docker run -i vaccinewatcher:latest 
+docker run vaccinewatcher:latest 
