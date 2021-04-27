@@ -55,20 +55,9 @@ pip install chromedriver
 
 * **Create a Docker ID:** https://hub.docker.com/signup
      
-* **Run Application:** The run script command below will prompt you to enter your Docker credentials, then Docker will build and run the application.
+* **Run Application:** The run script command below will prompt you to enter your Docker credentials, then the Docker container will build and run.
       
       $ bash run.sh
-
-### **Editing Application**
-* **Stop Running Container:** You will need the container ID to use the stop command.
-
-      # Find container ID
-      $ docker ps
-      
-      # Stop container running
-      $ docker stop <ContainerID>
-
-* **Rebuild & Run Container:** After edits are made to the application, rebuild and run the container via the docker build and run commands.
 
 ## Quick Start
 
