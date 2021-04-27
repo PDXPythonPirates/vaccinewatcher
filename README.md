@@ -57,7 +57,7 @@ pip install chromedriver
 
 * **Login:** You will be prompted to enter your Docker credentials.
       
-      $ scripts/docker login
+      $ docker login
       
 * **Build Docker Image:** 
       
@@ -65,7 +65,7 @@ pip install chromedriver
       
 * **Run Application/Docker Container:**
       
-      $ bash run.sh
+      $ bash scripts/run.sh
 
 ## Quick Start
 
