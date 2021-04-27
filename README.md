@@ -55,9 +55,8 @@ pip install chromedriver
 
 * **Create a Docker ID:** https://hub.docker.com/signup
      
-* **Run Application:**
+* **Run Application:** The run script command below will prompt you to enter your Docker credentials, then Docker will build and run the application.
       
-      # Will be prompted to enter Docker credendials
       $ bash run.sh
 
 ### **Editing Application**
