@@ -54,8 +54,16 @@ pip install chromedriver
 * **Download Docker Desktop:** https://www.docker.com/get-started. There are versions available for Linux, Max, and Windows. **What is Docker?** Docker is a platform for building, running, and shipping applications. Docker packages up an application with everything it needs and allows an app to run and function the same way on any user's local machine.
 
 * **Create a Docker ID:** https://hub.docker.com/signup
-     
-* **Run Application:** The run script command below will prompt you to enter your Docker credentials, then the Docker container will build and run.
+
+* **Login:** You will be prompted to enter your Docker credentials.
+      
+      $ scripts/docker login
+      
+* **Build Docker Image:** 
+      
+      $ bash scripts/build.sh
+      
+* **Run Application/Docker Container:**
       
       $ bash run.sh
 
