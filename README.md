@@ -49,23 +49,16 @@ pip install chromedriver
 
       $ cd vaccinewatcher
 
-### **Download Docker, Build Image, Run Container**
+### **Docker**
 
 * **Download Docker Desktop:** https://www.docker.com/get-started. There are versions available for Linux, Max, and Windows. **What is Docker?** Docker is a platform for building, running, and shipping applications. Docker packages up an application with everything it needs and allows an app to run and function the same way on any user's local machine.
 
 * **Create a Docker ID:** https://hub.docker.com/signup
      
-* **Login:**
-
-      $ docker login
-
-* **Build Docker Image:**
-
-      $ docker build -t vaccinewatcher . 
-
 * **Run Application:**
-
-      $ docker run -i vaccinewatcher:latest 
+      
+      # Will be prompted to enter Docker credendials
+      $ bash run.sh
 
 ### **Editing Application**
 * **Stop Running Container:** You will need the container ID to use the stop command.
