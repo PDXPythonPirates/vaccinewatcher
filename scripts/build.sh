@@ -1,2 +1,2 @@
 # Build Docker image
-docker build -t vaccinewatcher . 
+docker build -t vaccine-watcher . 
