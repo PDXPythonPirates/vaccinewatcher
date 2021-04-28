@@ -2,32 +2,32 @@
 
 usage="Usage: $0 <VERSION TAG> <FLASK_ENV>"
 
-if [[ "$1" ]]
+if [ "$1" ]
 then
-  CITY == $1
+  CITY = $1
 else
-  CITY == "Houston"
+  CITY = "Houston"
 fi
 
-if [[ "$2" ]]
+if [ "$2" ]
 then
-  STATE == $2
+  STATE = $2
 else
-  STATE == "Texas"
+  STATE = "Texas"
 fi
 
-if [[ "$3" ]]
+if [ "$3" ]
 then
-  STATE_ABBR == $3
+  STATE_ABBR = $3
 else
-  STATE_ABBR == "TX"
+  STATE_ABBR = "TX"
 fi
 
-if [[ "$4" ]]
+if [ "$4" ]
 then
-  ZIPCODE == $4
+  ZIPCODE = $4
 else
-  ZIPCODE == "77056"
+  ZIPCODE = "77056"
 fi
 
 # Run Docker container
