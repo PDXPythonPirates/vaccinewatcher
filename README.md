@@ -25,7 +25,8 @@ Hopefully, you'll see something like this:
 [VaccineWatcher] info : CVS has Available Appointments in HOUSTON, TX
 ```
 
-## Prerequisites
+## Installation
+### **Prerequisites**
 
 You should have chromedriver installed and in your paths, which a typical install will do.
 
@@ -40,18 +41,37 @@ brew install chromedriver
 pip install chromedriver
 ```
 
+### **Clone Repository**
 
-## Installation
+      $ git clone https://github.com/PDXPythonPirates/vaccinewatcher.git 
 
-`vaccinewatcher` is on currently only available on Github since it's not stable yet:
+* Navigate to the project folder
 
-```bash
-# from pypi
-pip install --upgrade vaccinewatcher
+      $ cd vaccinewatcher
 
-# from src
-pip install --upgrade git+https://github.com/trisongz/vaccinewatcher
-```
+### **Docker**
+
+* **Download Docker Desktop:** https://www.docker.com/get-started. There are versions available for Linux, Max, and Windows. **What is Docker?** Docker is a platform for building, running, and shipping applications. Docker packages up an application with everything it needs and allows an app to run and function the same way on any user's local machine.
+
+* **Create a Docker ID:** https://hub.docker.com/signup
+
+* **Login:** You will be prompted to enter your Docker credentials.
+      
+      $ docker login
+      
+* **Build Docker Image:** 
+      
+      $ ./scripts/build.sh
+      
+* **Run Application/Docker Container:**
+      
+      # Defaults to Houston, TX
+      $ ./scripts/run.sh
+      
+      or
+      
+      # Custom run example with "City" "State" "State Abbreviation" "Zip"
+      ./scripts/run.sh "Woodland" "California" "CA" "95776"
 
 ## Quick Start
 
@@ -65,9 +85,6 @@ If you have a lower-spec device, I would suggest increasing the frequency, since
 # --freq / how many secs between polling. default = 600 secs / 10 mins
 # --zapier / provide a Zapier Webhook URL to send notifications to
 # --verbose / enable logging for all results, regardless of options.
-
-# make sure if you have multiple words in any variable to have them in quotations.
-vaccinewatcher --city "Houston" --state "Texas" --abbr "TX" --zip "77056"
 ```
 
 The Pythonic API can be accessed with more ease. Rather than importing the `VaccineWatcher` object directly, it's recommended to use `get_vaccine_watcher` which prevents multiple instances from spawning through threading.Lock. 
@@ -140,8 +157,6 @@ class ZapierWebhook:
 
 # Final Notes
 
-
 ![vaccine-appt](etc/confirmation.png)
 
 If you found this library helpful, please do share it with others. This is what is within my capabilities to help provide a resource and tool to allow others to find vaccine availibility, and help bring an end to the pandemic. If you end up using some parts of this library for something bigger, let me know! I'd love to check it out.
-
