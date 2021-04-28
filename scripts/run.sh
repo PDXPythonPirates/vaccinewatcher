@@ -1,36 +1,32 @@
-#!/usr/bin/env python
+#!/bin/bash
 
-usage="Usage: $0 <VERSION TAG> <FLASK_ENV>"
-
-if [ "$1" ]
-then
-  CITY = $1
+if [ -z "$1" ]; then
+  export CITY=$1
 else
-  CITY = "Houston"
+  export CITY="Houston"
 fi
 
-if [ "$2" ]
-then
-  STATE = $2
+if [ -z "$2" ]; then
+  export STATE=$2
 else
-  STATE = "Texas"
+  export STATE="Texas"
 fi
 
-if [ "$3" ]
+if [ "$3" ];
 then
-  STATE_ABBR = $3
+  export STATE_ABBR=$3
 else
-  STATE_ABBR = "TX"
+  export STATE_ABBR="TX"
 fi
 
 if [ "$4" ]
 then
-  ZIPCODE = $4
+  export ZIPCODE=$4
 else
-  ZIPCODE = "77056"
+  export ZIPCODE="77056"
 fi
 
 # Run Docker container
-docker run --platform linux/arm64/v8 vaccine-watcher:latest --city=CITY --state=STATE --abbr=STATE_ABBR --zip=ZIPCODE
+docker run vaccine-watcher:latest --city=$CITY --state=$STATE --abbr=$STATE_ABBR --zip=$ZIPCODE
 
 # Example Run: ./scripts/run.sh --city "Woodland" --state "California" --abbr "CA" --zip "95776"
