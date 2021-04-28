@@ -1,12 +1,12 @@
 #!/bin/bash
 
-if [ -z "$1" ]; then
+if [ "$1" ]; then
   export CITY=$1
 else
   export CITY="Houston"
 fi
 
-if [ -z "$2" ]; then
+if [ "$2" ]; then
   export STATE=$2
 else
   export STATE="Texas"
@@ -29,4 +29,4 @@ fi
 # Run Docker container
 docker run vaccine-watcher:latest --city=$CITY --state=$STATE --abbr=$STATE_ABBR --zip=$ZIPCODE
 
-# Example Run: ./scripts/run.sh --city "Woodland" --state "California" --abbr "CA" --zip "95776"
+# Example Run: ./scripts/run.sh "Woodland" "California" "CA" "95776"        
