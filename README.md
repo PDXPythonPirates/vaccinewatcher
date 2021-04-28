@@ -65,7 +65,13 @@ pip install chromedriver
       
 * **Run Application/Docker Container:**
       
+      # Defaults to Houston, TX
       $ ./scripts/run.sh
+      
+      or
+      
+      # Custom run example with "City" "State" "State Abbreviation" "Zip"
+      ./scripts/run.sh "Woodland" "California" "CA" "95776"
 
 ## Quick Start
 
@@ -79,9 +85,6 @@ If you have a lower-spec device, I would suggest increasing the frequency, since
 # --freq / how many secs between polling. default = 600 secs / 10 mins
 # --zapier / provide a Zapier Webhook URL to send notifications to
 # --verbose / enable logging for all results, regardless of options.
-
-# make sure if you have multiple words in any variable to have them in quotations.
-vaccinewatcher --city "Houston" --state "Texas" --abbr "TX" --zip "77056"
 ```
 
 The Pythonic API can be accessed with more ease. Rather than importing the `VaccineWatcher` object directly, it's recommended to use `get_vaccine_watcher` which prevents multiple instances from spawning through threading.Lock. 
