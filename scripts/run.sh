@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python
 
 usage="Usage: $0 <VERSION TAG> <FLASK_ENV>"
 
