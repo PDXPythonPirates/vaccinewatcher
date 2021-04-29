@@ -9,12 +9,12 @@ RUN sudo apt-get update -y && \
     python3 \
     python3-pip
 
-# Copy required files
-COPY vaccinewatcher . 
+# Copy file and install dependencies
 COPY requirements.txt .
-
-# Install dependencies
 RUN python3 -m pip install -r requirements.txt 
+
+# Copy directory
+COPY vaccinewatcher .
 
 # Run application
 ENTRYPOINT [ "python3", "watcher.py" ]
