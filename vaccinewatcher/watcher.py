@@ -209,18 +209,17 @@ class VaccineWatcher:
         time.sleep(2)
         self.browser.get_element(class_name="kds-Input").fill("01/01/1980")
         time.sleep(1)
-        self.browser.get_button(partial_text="Submit").click()
-        # self.browser.get_button(class_name="kds-Button kds-Button--primary KrogerForm-form-button KrogerForm-form-button").click()
-        # time.sleep(2)
-        self.browser.get_button(text="No").click()
+        self.browser.get_element(class_name="SearchOverlay").click()
+        time.sleep(1)
+        self.browser.get_element(class_name="Attachment-ButtonGroup").click()
+        time.sleep(1)
+        self.browser.get_element(class_name="Attachment-ButtonGroup").click()
         time.sleep(2)
-        self.browser.get_button(text='No').click()
+        self.browser.get_element(class_name="Attachment-ButtonGroup").click()#get_button(partial_text="Schedule Your COVID-19 Vaccine").click() # clicking the submit button takes you to a new url https://www.kroger.com/rx/covid-vaccine
         time.sleep(2)
-        self.browser.get_button(text='Schedule Your COVID-19 Vaccine').click() # clicking the submit button takes you to a new url https://www.kroger.com/rx/covid-vaccine
+        self.browser.get_element(class_name="kds-Input").fill(self.config.zipcode)
         time.sleep(2)
-        self.browser.get_element(id='ko2vcuwa-input').fill(self.config.zipcode)
-        time.sleep(2)
-        self.browser.get_element(text='Find Appointment').click()
+        self.browser.get_element(class_name="kds-Form-field").click()
         if self.browser.get_element(text="None of the locations in your search currently have appointments available for COVID-19 vaccines. Please try another zip code or city within the state in which you're eligible, or check back soon for available appointments.") == True:
             return None
         return self._kroger_parser()
