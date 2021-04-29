@@ -12,6 +12,7 @@ from datetime import datetime
 import argparse
 import gc
 from logger import get_logger
+import re
 
 logger = get_logger()
 
@@ -32,7 +33,7 @@ class Browser:
         self.chrome_options = webdriver.ChromeOptions()
         self.chrome_options.add_argument("--disable-gpu")
         self.chrome_options.add_argument("--disable-software-rasterizer")
-        self.chrome_options.add_argument("--headless")
+        #self.chrome_options.add_argument("--headless")
         self.chrome_options.add_argument("--disable-dev-shm-usage")
         self.chrome_options.add_argument("--window-size=1920x1080")
         self.chrome_options.add_argument("--disable-setuid-sandbox")
@@ -94,18 +95,10 @@ class Config:
     state_abbr: str = 'TX'
     zipcode: str = '77056'
 
-_wg_steps = [
-    'https://www.walgreens.com/',
-    'https://www.walgreens.com/findcare/vaccination/covid-19?ban=covid_scheduler_brandstory_main_March2021',
-]
-
-_costco_steps = [
-    'https://book-costcopharmacy.appointment-plus.com/d133yng2/#/'
-]
-
 _avail_links = {
     'cvs': 'https://www.cvs.com//vaccine/intake/store/cvd-schedule.html?icid=coronavirus-lp-vaccine-sd-statetool',
-    'wg': 'https://www.walgreens.com/findcare/vaccination/covid-19?ban=covid_scheduler_brandstory_main_March2021'
+    'wg': 'https://www.walgreens.com/findcare/vaccination/covid-19?ban=covid_scheduler_brandstory_main_March2021',
+    'costco': 'https://book-costcopharmacy.appointment-plus.com/d133yng2/#/'
 }
 
 class VaccineWatcher:
@@ -141,9 +134,7 @@ class VaccineWatcher:
         return False
     
     def check_wg(self):
-        self.browser.visit(_wg_steps[0])
-        time.sleep(5)
-        self.browser.visit(_wg_steps[1])
+        self.browser.visit(_avail_links["wg"])
         time.sleep(5)
         self.browser.get_element(partial_link_text="Schedule new appointment").click()
         time.sleep(3)
@@ -185,20 +176,51 @@ class VaccineWatcher:
                 if 'https://www.cvs.com/immunizations/covid-19-vaccine.vaccine-status' in r.url:
                     return self._cvs_parser(r.response)
         return None
+    
+    #not started
+    def _costco_parser(self, resp):
+        data = json.loads(resp.body.decode('utf-8'))['responsePayloadData']['data'][self.config.state_abbr]
+        for item in data:
+            if item['city'] == self.config.city.upper():
+                self._last_status['cvs']['data'] = item
+                if item['status'] == 'Available':
+                    msg = f'CVS has Available Appointments in {item["city"]}, {item["state"]}'
+                    msg += f'\nPlease Visit: {_avail_links["cvs"]} to schedule.'
+                    self._call_hook(msg)
+                    logger.log(msg)
+                    return True
+                if self.verbose:
+                    msg = f'Results for CVS: {item}'
+                    logger.log(msg)
+                return False 
 
     def check_costco(self):
-        self.browser.visit(_costco_steps[0])
+        self.browser.visit(_avail_links["costco"])
         time.sleep(5)
         self.browser.get_element(partial_link_text="Get Started").click()
         time.sleep(3)
         self.browser.get_input(id="searchBar").fill(f'{self.config.zipcode}')
         self.browser.get_button(text="Go").click()
-        time.sleep(1)
+        time.sleep(3)
+        buttons = []
+        pattern = re.compile("^selectClientButton")
+        # get all the buttons for store locations
+        elements = self.browser.get_elements(name="selectClientButton")
+        for element in elements:
+            match = pattern.match(element.attribute("id"))
+            if match:
+                #show the id for each button
+                buttons.append(element.attribute("id"))
+                print(f'Found button with id={element.attribute("id")}')
+        for button in buttons:
+            print(f'Trying to click button with id={element.attribute("id").split("-")[1]}')
+            self.browser.get_element(id=button).click()
+           
         reqs = self.browser.selenium_webdriver.requests
         for r in reqs:
             if r.response:
-                if '/hcschedulersvc/svc/v1/immunizationLocations/availability' in r.url:
-                    return self._wg_parser(r.response)
+                if 'select-date-and-time' in r.url:
+                    return self._costco_parser(r.response)
         return None
 
     def run(self):
@@ -232,16 +254,21 @@ class VaccineWatcher:
             if self._check_wg:
                 self._last_status['walgreens']['available'] = self.check_wg()
                 self._last_status['walgreens']['timestamp'] = create_timestamp()
+            if self._check_costco:
+                self._last_status['costco']['available'] = self.check_costco()
+                self._last_status['costco']['timestamp'] = create_timestamp()
             self._call_hook()
             self.api.should_reset()
             time.sleep(self.freq)
 
-    def __call__(self, check_walgreens=True, check_cvs=True):
+    def __call__(self, check_walgreens=True, check_cvs=True, check_costco=True):
         res = {}
         if check_walgreens:
             res['walgreens'] = self.check_wg()
         if check_cvs:
             res['cvs'] = self.check_cvs()
+        if check_costco:
+            res['costco'] = self.check_costco()
         return res
 
     def __enter__(self):
@@ -307,13 +334,14 @@ def cli():
 
     parser.add_argument('--no-cvs', dest='cvs', default=True, action='store_false', help='Disable CVS Search.')
     parser.add_argument('--no-wg', dest='wg', default=True, action='store_false', help='Disable Walgreens Search.')
+    parser.add_argument('--no-costco', dest='costco', default=True, action='store_false', help='Disable Costco Search.')
     parser.add_argument('--verbose', dest='verbose', default=False, action='store_true', help='Enable verbosity. Will log results regardless of status')
     args = parser.parse_args()
     params = {'city': args.city.capitalize(), 'state': args.state.capitalize(), 'state_abbr': args.state_abbr.upper(), 'zipcode': args.zipcode}
     hook = None
     if args.zapierhook:
         hook = ZapierWebhook(args.zapierhook)
-    watcher = get_vaccine_watcher(config=params, freq_secs=args.freq, hook=hook, check_walgreens=args.wg, check_cvs=args.cvs, verbose=args.verbose)
+    watcher = get_vaccine_watcher(config=params, freq_secs=args.freq, hook=hook, check_walgreens=args.wg, check_cvs=args.cvs, check_costco=args.costco, verbose=args.verbose)
     watcher.run()
     while True:
         try:
