@@ -100,20 +100,22 @@ _wg_steps = [
 ]
 _avail_links = {
     'cvs': 'https://www.cvs.com//vaccine/intake/store/cvd-schedule.html?icid=coronavirus-lp-vaccine-sd-statetool',
-    'wg': 'https://www.walgreens.com/findcare/vaccination/covid-19?ban=covid_scheduler_brandstory_main_March2021'
+    'wg': 'https://www.walgreens.com/findcare/vaccination/covid-19?ban=covid_scheduler_brandstory_main_March2021',
+    'kroger': 'https://www.kroger.com/rx/covid-eligibility'
 }
 
 class VaccineWatcher:
-    def __init__(self, config, freq_secs=600, hook=None, check_walgreens=True, check_cvs=True, send_data=True, always_send=False, verbose=False):
+    def __init__(self, config, freq_secs=600, hook=None, check_walgreens=True, check_cvs=True, check_kroger=True, send_data=True, always_send=False, verbose=False):
         self.config = Config(**config)
         self.freq = freq_secs
         self.send_data = send_data
         self.always_send = always_send
         self.hook = hook
         self.verbose = verbose
-        self._last_status = {'walgreens': {'available': False, 'data': None, 'timestamp': None}, 'cvs': {'available': False, 'data': None, 'timestamp': None}}
+        self._last_status = {'walgreens': {'available': False, 'data': None, 'timestamp': None}, 'cvs': {'available': False, 'data': None, 'timestamp': None}, 'kroger': {'available': False, 'data': None, 'timestamp': None}}
         self._check_wg = check_walgreens
         self._check_cvs = check_cvs
+        self._check_kroger = check_kroger
         self.api = Browser()
         self.browser = self.api.browser
         self.alive = True
@@ -180,6 +182,49 @@ class VaccineWatcher:
                     return self._cvs_parser(r.response)
         return None
 
+    def _kroger_parser(self):
+        data = json.loads(resp.body.decode('utf-8'))['responsePayloadData']['data'][self.config.state_abbr]
+        for item in data:
+            if item['city'] == self.config.city.upper():
+                self._last_status['cvs']['data'] = item
+                if item['status'] == 'Available':
+                    msg = f'Kroger has Available Appointments in {item["city"]}, {item["state"]}'
+                    msg += f'\nPlease Visit: {_avail_links["kroger"]} to schedule.'
+                    self._call_hook(msg)
+                    logger.log(msg)
+                    return True
+                if self.verbose:
+                    msg = f'Results for Kroger: {item}'
+                    logger.log(msg)
+                return False
+    
+    def check_kroger(self):
+        self.browser.visit('https://www.kroger.com/rx/covid-eligibility')
+        self.browser.get_element(text='I Agree').click()
+        time.sleep(2)
+        self.browser.get_element(text='No').click()
+        time.sleep(2)
+        self.browser.get_element(partial_text='Select...', wait=2).get_element(value=self.config.state_abbr).select()
+        time.sleep(2)
+        self.browser.get_element(text='MM/DD/YYYY').fill("01/01/1980")
+        time.sleep(1)
+        self.browser.get_button(class_name="kds-Button kds-Button--primary KrogerForm-form-button KrogerForm-form-button").click()
+        time.sleep(2)
+        self.browser.get_button(text="No").click()
+        time.sleep(2)
+        self.browser.get_button(text='No').click()
+        time.sleep(2)
+        self.browser.get_button(text='Schedule Your COVID-19 Vaccine').click() # clicking the submit button takes you to a new url https://www.kroger.com/rx/covid-vaccine
+        time.sleep(2)
+        self.browser.get_element(id='ko2vcuwa-input').fill(self.config.zipcode)
+        time.sleep(2)
+        self.browser.get_element(text='Find Appointment').click()
+        if self.browser.get_element(text="None of the locations in your search currently have appointments available for COVID-19 vaccines. Please try another zip code or city within the state in which you're eligible, or check back soon for available appointments.") == True:
+            return None
+        return self._kroger_parser()
+
+
+
     def run(self):
         if not self.dactive:
             t = threading.Thread(target=self._daemon, daemon=True)
@@ -211,6 +256,9 @@ class VaccineWatcher:
             if self._check_wg:
                 self._last_status['walgreens']['available'] = self.check_wg()
                 self._last_status['walgreens']['timestamp'] = create_timestamp()
+            if self._check_kroger:
+                self._last_status['kroger']['available'] = self.check_kroger()
+                self._last_status['kroger']['timestamp'] = create_timestamp()
             self._call_hook()
             self.api.should_reset()
             time.sleep(self.freq)
@@ -286,13 +334,14 @@ def cli():
 
     parser.add_argument('--no-cvs', dest='cvs', default=True, action='store_false', help='Disable CVS Search.')
     parser.add_argument('--no-wg', dest='wg', default=True, action='store_false', help='Disable Walgreens Search.')
+    parser.add_argument('--no-kroger', dest='kroger', default=True, action='store_false', help='Disable Kroger Search.')
     parser.add_argument('--verbose', dest='verbose', default=False, action='store_true', help='Enable verbosity. Will log results regardless of status')
     args = parser.parse_args()
     params = {'city': args.city.capitalize(), 'state': args.state.capitalize(), 'state_abbr': args.state_abbr.upper(), 'zipcode': args.zipcode}
     hook = None
     if args.zapierhook:
         hook = ZapierWebhook(args.zapierhook)
-    watcher = get_vaccine_watcher(config=params, freq_secs=args.freq, hook=hook, check_walgreens=args.wg, check_cvs=args.cvs, verbose=args.verbose)
+    watcher = get_vaccine_watcher(config=params, freq_secs=args.freq, hook=hook, check_walgreens=args.wg, check_cvs=args.cvs, check_kroger=args.kroger, verbose=args.verbose)
     watcher.run()
     while True:
         try:
