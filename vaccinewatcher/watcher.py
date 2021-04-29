@@ -98,6 +98,12 @@ _wg_steps = [
     'https://www.walgreens.com/',
     'https://www.walgreens.com/findcare/vaccination/covid-19?ban=covid_scheduler_brandstory_main_March2021',
 ]
+
+_costco_steps = [
+    'https://book-costcopharmacy.appointment-plus.com/d133yng2/#/',
+    'https://www.walgreens.com/findcare/vaccination/covid-19?ban=covid_scheduler_brandstory_main_March2021',
+]
+
 _avail_links = {
     'cvs': 'https://www.cvs.com//vaccine/intake/store/cvd-schedule.html?icid=coronavirus-lp-vaccine-sd-statetool',
     'wg': 'https://www.walgreens.com/findcare/vaccination/covid-19?ban=covid_scheduler_brandstory_main_March2021'
@@ -178,6 +184,21 @@ class VaccineWatcher:
             if r.response:
                 if 'https://www.cvs.com/immunizations/covid-19-vaccine.vaccine-status' in r.url:
                     return self._cvs_parser(r.response)
+        return None
+
+    def check_costco(self):
+        self.browser.visit(_costco_steps[0])
+        time.sleep(5)
+        self.browser.get_element(partial_link_text="Get Started").click()
+        time.sleep(3)
+        self.browser.get_input(id="searchBar").fill(f'{self.config.zipcode}')
+        self.browser.get_button(text="Go").click()
+        time.sleep(1)
+        reqs = self.browser.selenium_webdriver.requests
+        for r in reqs:
+            if r.response:
+                if '/hcschedulersvc/svc/v1/immunizationLocations/availability' in r.url:
+                    return self._wg_parser(r.response)
         return None
 
     def run(self):
