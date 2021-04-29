@@ -100,8 +100,7 @@ _wg_steps = [
 ]
 
 _costco_steps = [
-    'https://book-costcopharmacy.appointment-plus.com/d133yng2/#/',
-    'https://www.walgreens.com/findcare/vaccination/covid-19?ban=covid_scheduler_brandstory_main_March2021',
+    'https://book-costcopharmacy.appointment-plus.com/d133yng2/#/'
 ]
 
 _avail_links = {
@@ -110,21 +109,22 @@ _avail_links = {
 }
 
 class VaccineWatcher:
-    def __init__(self, config, freq_secs=600, hook=None, check_walgreens=True, check_cvs=True, send_data=True, always_send=False, verbose=False):
+    def __init__(self, config, freq_secs=600, hook=None, check_walgreens=True, check_cvs=True, check_costco=True, send_data=True, always_send=False, verbose=False):
         self.config = Config(**config)
         self.freq = freq_secs
         self.send_data = send_data
         self.always_send = always_send
         self.hook = hook
         self.verbose = verbose
-        self._last_status = {'walgreens': {'available': False, 'data': None, 'timestamp': None}, 'cvs': {'available': False, 'data': None, 'timestamp': None}}
+        self._last_status = {'walgreens': {'available': False, 'data': None, 'timestamp': None}, 'cvs': {'available': False, 'data': None, 'timestamp': None}, 'costco': {'available': False, 'data': None, 'timestamp': None}}
         self._check_wg = check_walgreens
         self._check_cvs = check_cvs
+        self._check_costco = check_costco
         self.api = Browser()
         self.browser = self.api.browser
         self.alive = True
         self.dactive = False
-        logger.log(f'Initialized VaccineWatcher with {self.config}. Will Check every {self.freq} secs. Walgreens: {self._check_wg}. CVS: {self._check_cvs}\nCall .run() to start daemon')
+        logger.log(f'Initialized VaccineWatcher with {self.config}. Will Check every {self.freq} secs. Walgreens: {self._check_wg}. CVS: {self._check_cvs}. Costco: {self._check_costco}\nCall .run() to start daemon')
     
     def _wg_parser(self, resp):
         data = json.loads(resp.body.decode('utf-8'))
