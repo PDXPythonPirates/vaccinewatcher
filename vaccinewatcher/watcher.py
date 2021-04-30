@@ -120,7 +120,7 @@ class VaccineWatcher:
         self.browser = self.api.browser
         self.alive = True
         self.dactive = False
-        logger.log(f'Initialized VaccineWatcher with {self.config}. Will Check every {self.freq} secs. Walgreens: {self._check_wg}. CVS: {self._check_cvs}\nCall .run() to start daemon')
+        logger.log(f'Initialized VaccineWatcher with {self.config}. Will Check every {self.freq} secs. Walgreens: {self._check_wg}. CVS: {self._check_cvs}. Kroger: {self._check_kroger}.\nCall .run() to start daemon')
     
     def _wg_parser(self, resp):
         data = json.loads(resp.body.decode('utf-8'))
@@ -200,31 +200,30 @@ class VaccineWatcher:
     
     def check_kroger(self):
         self.browser.visit('https://www.kroger.com/rx/covid-eligibility')
+        time.sleep(3)
         self.browser.get_element(text='I Agree').click()
-        time.sleep(2)
+        time.sleep(3)
         self.browser.get_element(text='No').click()
-        time.sleep(2)
+        time.sleep(3)
         self.browser.get_element(class_name="kds-Select").get_element(value=self.config.state_abbr).select()
-        #self.browser.get_element(partial_text='Select...').get_element(value=self.config.state_abbr).select()
-        time.sleep(2)
+        time.sleep(3)
         self.browser.get_element(class_name="kds-Input").fill("01/01/1980")
-        time.sleep(1)
+        time.sleep(3)
         self.browser.get_element(class_name="SearchOverlay").click()
-        time.sleep(1)
+        time.sleep(3)
         self.browser.get_element(class_name="Attachment-ButtonGroup").click()
-        time.sleep(1)
+        time.sleep(3)
         self.browser.get_element(class_name="Attachment-ButtonGroup").click()
-        time.sleep(2)
-        self.browser.get_element(class_name="Attachment-ButtonGroup").click()#get_button(partial_text="Schedule Your COVID-19 Vaccine").click() # clicking the submit button takes you to a new url https://www.kroger.com/rx/covid-vaccine
-        time.sleep(2)
+        time.sleep(3)
+        self.browser.get_element(class_name="Attachment-ButtonGroup").click()
+        time.sleep(4)
         self.browser.get_element(class_name="kds-Input").fill(self.config.zipcode)
         time.sleep(2)
-        self.browser.get_element(class_name="kds-Form-field").click()
-        if self.browser.get_element(text="None of the locations in your search currently have appointments available for COVID-19 vaccines. Please try another zip code or city within the state in which you're eligible, or check back soon for available appointments.") == True:
-            return None
-        return self._kroger_parser()
-
-
+        self.browser.get_element(class_name="SearchOverlay").click() #found this to be "SearchOverlay" based on error message, but I am not sure how to verify.
+        time.sleep(5) #increased timeout to see if that makes a difference
+        if self.browser.get_element(class_name="MultipleLocationScheduler-sortingButton") == True: #stuck here
+            return self._kroger_parser()
+        return None
 
     def run(self):
         if not self.dactive:
