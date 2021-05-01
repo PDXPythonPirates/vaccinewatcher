@@ -27,6 +27,6 @@ else
 fi
 
 # Run Docker container
-docker run vaccine-watcher:latest --city=$CITY --state=$STATE --abbr=$STATE_ABBR --zip=$ZIPCODE
+docker run vaccinewatcher:latest --city=$CITY --state=$STATE --abbr=$STATE_ABBR --zip=$ZIPCODE
 
 # Example Run: ./scripts/run.sh "Woodland" "California" "CA" "95776"        

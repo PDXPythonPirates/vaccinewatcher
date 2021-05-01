@@ -100,20 +100,22 @@ _wg_steps = [
 ]
 _avail_links = {
     'cvs': 'https://www.cvs.com//vaccine/intake/store/cvd-schedule.html?icid=coronavirus-lp-vaccine-sd-statetool',
-    'wg': 'https://www.walgreens.com/findcare/vaccination/covid-19?ban=covid_scheduler_brandstory_main_March2021'
+    'wg': 'https://www.walgreens.com/findcare/vaccination/covid-19?ban=covid_scheduler_brandstory_main_March2021',
+    'sw': 'https://www.safeway.com/pharmacy/covid-19.html'
 }
 
 class VaccineWatcher:
-    def __init__(self, config, freq_secs=600, hook=None, check_walgreens=True, check_cvs=True, send_data=True, always_send=False, verbose=False):
+    def __init__(self, config, freq_secs=600, hook=None, check_walgreens=True, check_cvs=True, check_sw=True, send_data=True, always_send=False, verbose=False):
         self.config = Config(**config)
         self.freq = freq_secs
         self.send_data = send_data
         self.always_send = always_send
         self.hook = hook
         self.verbose = verbose
-        self._last_status = {'walgreens': {'available': False, 'data': None, 'timestamp': None}, 'cvs': {'available': False, 'data': None, 'timestamp': None}}
+        self._last_status = {'walgreens': {'available': False, 'data': None, 'timestamp': None}, 'cvs': {'available': False, 'data': None, 'timestamp': None}, 'sw': {'available': False, 'data': None, 'timestamp': None}}
         self._check_wg = check_walgreens
         self._check_cvs = check_cvs
+        self._check_sw = check_sw
         self.api = Browser()
         self.browser = self.api.browser
         self.alive = True
@@ -178,6 +180,37 @@ class VaccineWatcher:
             if r.response:
                 if 'https://www.cvs.com/immunizations/covid-19-vaccine.vaccine-status' in r.url:
                     return self._cvs_parser(r.response)
+        return None
+
+    def _sw_parser(self, resp):
+        data = json.loads(resp.body.decode('utf-8'))['responsePayloadData']['data'][self.config.state_abbr]
+        for item in data:
+            if item['city'] == self.config.city.upper():
+                self._last_status['sw']['data'] = item
+                if item['status'] == 'Available':
+                    msg = f'Safeway has Available Appointments in {item["city"]}, {item["state"]}'
+                    msg += f'\nPlease Visit: {_avail_links["sw"]} to schedule.'
+                    self._call_hook(msg)
+                    logger.log(msg)
+                    return True
+                if self.verbose:
+                    msg = f'Results for Safeway: {item}'
+                    logger.log(msg)
+                return False 
+
+    def check_sw(self):
+        self.browser.visit('https://www.safeway.com/vaccine/home')
+        time.sleep(1)
+        self.browser.get_element(partial_link_text="Make an appointment at a pharmacy near you").click()
+        self.browser.get_button(text="Schedule Now").click()
+        self.browser.get_button(text="COVID-19").click()
+        self.browser.get_button(text="Continue").click()
+        self.browser.get_element(id='covid_vaccine_search_input').get_element(value=self.config.state_abbr).select()
+        reqs = self.browser.selenium_webdriver.requests
+        for r in reqs:
+            if r.response:
+                if 'https://www.mhealthappointments.com/covidappt' in r.url:
+                    return self._sw_parser(r.response)
         return None
 
     def run(self):
