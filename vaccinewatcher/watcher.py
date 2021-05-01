@@ -33,7 +33,7 @@ class Browser:
         self.chrome_options = webdriver.ChromeOptions()
         self.chrome_options.add_argument("--disable-gpu")
         self.chrome_options.add_argument("--disable-software-rasterizer")
-        #self.chrome_options.add_argument("--headless")
+        self.chrome_options.add_argument("--headless")
         self.chrome_options.add_argument("--disable-dev-shm-usage")
         self.chrome_options.add_argument("--window-size=1920x1080")
         self.chrome_options.add_argument("--disable-setuid-sandbox")
@@ -98,7 +98,7 @@ class Config:
 _avail_links = {
     'cvs': 'https://www.cvs.com//vaccine/intake/store/cvd-schedule.html?icid=coronavirus-lp-vaccine-sd-statetool',
     'wg': 'https://www.walgreens.com/findcare/vaccination/covid-19?ban=covid_scheduler_brandstory_main_March2021',
-    'costco': 'https://book-costcopharmacy.appointment-plus.com/d133yng2/#/'
+    'costco': 'https://book-costcopharmacy.appointment-plus.com/d133yng2'
 }
 
 class VaccineWatcher:
@@ -201,7 +201,7 @@ class VaccineWatcher:
         time.sleep(3)
         self.browser.get_input(id="searchBar").fill(f'{self.config.zipcode}')
         self.browser.get_button(text="Go").click()
-        time.sleep(3)
+        time.sleep(5)
         buttons = []
         pattern = re.compile("^selectClientButton")
         # get all the buttons for store locations
@@ -215,12 +215,15 @@ class VaccineWatcher:
         for button in buttons:
             print(f'Trying to click button with id={element.attribute("id").split("-")[1]}')
             self.browser.get_element(id=button).click()
-           
-        reqs = self.browser.selenium_webdriver.requests
-        for r in reqs:
-            if r.response:
-                if 'select-date-and-time' in r.url:
-                    return self._costco_parser(r.response)
+            reqs = self.browser.selenium_webdriver.requests
+            for r in reqs:
+                if r.response:
+                    if 'select-date-and-time' in r.url:
+                        print("got data and time in url")
+                        return self._costco_parser(r.response)
+                    else:
+                        self.browser.get_element(link_text="Click here").click()
+                        time.sleep(3)
         return None
 
     def run(self):
